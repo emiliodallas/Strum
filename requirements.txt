@@ -1,0 +1,5 @@
+pyTelegramBotAPI
+confluent-kafka
+python-steam-api
+beautifulsoup4
+
