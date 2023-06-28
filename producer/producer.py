@@ -1,6 +1,7 @@
 from confluent_kafka import Producer
 import producer
 import steam_data
+import json
 
 def delivery_callback(err, msg):
     if err:
@@ -12,27 +13,35 @@ def delivery_callback(err, msg):
 kafka_bootstrap_servers = "localhost:9092"
 kafka_topic = "game-promotions"
 kafka_topic_2 = "not-promotions"
+kafka_topic_wishlist = "wishlist"
 
 # Create Kafka producer
 producer = Producer({"bootstrap.servers": kafka_bootstrap_servers})
 
+wishlist = {}
+
 while True:
     # Retrieve game information and check for promotions
-    name, price, discount = steam_data.price_discount(input("Game name:"))
+    search = input("Search game: \n")
+    f_name, f_price, f_discount = steam_data.price_discount(search)
+    print(f"The game {f_name} is costing {f_price} with {f_discount}% discount.\n")
+    wishlist_flag = input("Add to wishlist? (y/n)\n")
+    
+    if wishlist_flag == 'y' and f_discount == 0:
+        wishlist[f_name] = {
+            "price": f_price,
+            "discount": f_discount,
+            "promotion": False
+        }
+    elif wishlist_flag == 'y' and f_discount > 0:
+        wishlist[f_name] = {
+            "price": f_price,
+            "discount": f_discount,
+            "promotion": True
+        }
 
-    game_info = {
-        "name": name,
-        "price": price,
-        "discount": discount
-    }
-
-    if game_info["discount"] > 0:
-        promo_data = f"{{\"game_name\": \"{game_info['name']}\", \"promotion\": true, \"discount\": \"{game_info['discount']}\", \"price\": \"{game_info['price']}\"}}"
-        producer.produce(kafka_topic, value=promo_data, callback=delivery_callback)
-    elif game_info["discount"] == 0:
-        nopromo_data = f"{{\"game_name\": \"{game_info['name']}\", \"promotion\": false, \"discount\": \"{game_info['discount']}\", \"price\": \"{game_info['price']}\"}}"
-        producer.produce(kafka_topic_2, value=nopromo_data, callback=delivery_callback)
-    # Flush the producer to ensure all messages are delivered
+    wishlist_data = json.dumps(wishlist)
+    producer.produce(kafka_topic_wishlist, value=wishlist_data, callback=delivery_callback)
     producer.flush()
 
 producer.close()

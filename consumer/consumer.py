@@ -9,8 +9,7 @@ chat_id = '1224465429'
 
 # Configuration for Kafka consumer
 kafka_bootstrap_servers = "localhost:9092"
-kafka_topic = "game-promotions"
-kafka_topic_2 = "not-promotions"
+kafka_topic_wishlist = "wishlist"
 kafka_group_id = "my-consumer-group"
 
 # Create Kafka consumer
@@ -21,7 +20,7 @@ consumer = Consumer({
 })
 
 # Subscribe to the Kafka topic
-consumer.subscribe([kafka_topic,kafka_topic_2])
+consumer.subscribe([kafka_topic_wishlist])
 
 try:
     while True:
@@ -41,8 +40,13 @@ try:
         event_data = msg.value().decode("utf-8")
         print("Received event data:", event_data)
 
-        
 
+except KeyboardInterrupt:
+    pass
+
+# Close the Kafka consumer
+consumer.close()
+'''
         # Parse the JSON data
         data = json.loads(event_data)
         game_name = data["game_name"]
@@ -55,11 +59,6 @@ try:
             message = f'The game {game_name} is not in promotion costing {price}.'
         bot.send_message(chat_id=chat_id, text=message)
 
-
+'''
         # Send notification to the user's smartphone using Telegram or another messaging service
 
-except KeyboardInterrupt:
-    pass
-
-# Close the Kafka consumer
-consumer.close()
