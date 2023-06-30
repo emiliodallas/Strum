@@ -3,7 +3,7 @@ import telebot
 import json
 
 
-bot = telebot.TeleBot(token='6032445966:AAGo-AkteKJIpeoNO1gtrGG4lusbppUUrNE')
+bot = telebot.TeleBot(token='TOKEN')
 chat_id = '1224465429'
 
 
