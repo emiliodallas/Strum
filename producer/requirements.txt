@@ -1,0 +1,7 @@
+steam
+gevent
+decouple
+confluent-kafka
+python-steam-api
+beautifulsoup4
+psycopg2-binary

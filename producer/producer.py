@@ -1,5 +1,4 @@
 from confluent_kafka import Producer
-import producer
 import steam_data
 import json
 from psql.data import insert_client, add_game_to_wishlist
@@ -48,7 +47,7 @@ while True:
             "discount": f_discount,
             "promotion": True
         }
-        add_game_to_wishlist(id_client, f_name, f_price, f_discount, False)
+        add_game_to_wishlist(id_client, f_name, f_price, f_discount, True)
 
     wishlist_data = json.dumps(wishlist)
     producer.produce(kafka_topic_wishlist, value=wishlist_data, callback=delivery_callback)
