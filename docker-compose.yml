@@ -1,6 +1,7 @@
 version: '3'
 services:
   producer:
+    container_name: producer
     build:
       context: ./producer
       dockerfile: Dockerfile
@@ -18,54 +19,51 @@ services:
       DB_PASSWORD: mysecretpassword
 
   consumer:
+    container_name: consumer
     build:
       context: ./consumer
       dockerfile: Dockerfile
     depends_on:
       - kafka
-    ports:
-      - 5000:5000
     volumes:
       - myvolume:/app/Shared
     networks:
       - mynetwork
-
-  zookeeper:
-      image: confluentinc/cp-zookeeper:latest
-      environment:
-        ZOOKEEPER_CLIENT_PORT: 2181
-        ZOOKEEPER_TICK_TIME: 2000
-      networks:
-        - mynetwork
-
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
-    ports:
-      - 9092:9092
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - mynetwork
-    
-  kafdrop:
-    image: obsidiandynamics/kafdrop:latest
-    networks: 
-      - mynetwork
-    depends_on:
-      - kafka
-    ports:
-      - 19000:9000
     environment:
       KAFKA_BROKERCONNECT: kafka:29092
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    networks:
+      - mynetwork
+    ports:
+      - 22181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    networks:
+      - mynetwork
+    ports:
+      - 29092:29092
+      - 29093:29093
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: EXTERNAL_SAME_HOST://:29092,EXTERNAL_DIFFERENT_HOST://:29093,INTERNAL://:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL_SAME_HOST://localhost:29092,EXTERNAL_DIFFERENT_HOST://157.245.0.10:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL_SAME_HOST:PLAINTEXT, EXTERNAL_DIFFERENT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
   postgres:
+    container_name: postgresql
     image: postgres
     restart: always
     environment:

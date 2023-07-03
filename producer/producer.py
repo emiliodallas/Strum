@@ -3,6 +3,7 @@ import steam_data
 import json
 from psql.data import insert_client, add_game_to_wishlist
 
+
 def delivery_callback(err, msg):
     if err:
         print(f"Failed to deliver message: {err}")
