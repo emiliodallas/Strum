@@ -44,10 +44,3 @@ class Telegram:
         rData = r["result"]
         wishlistFlag = rData[-1]["message"]["text"]
         return wishlistFlag.lower()
-    
-
-token = "6032445966:AAGo-AkteKJIpeoNO1gtrGG4lusbppUUrNE"
-bot = telebot.TeleBot(token)
-client_id = '1224465429'
-#telegram = Telegram(token=token, destinationID=client_id)
-

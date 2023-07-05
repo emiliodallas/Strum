@@ -11,6 +11,8 @@ services:
       - myvolume:/app/Shared
     networks:
       - mynetwork
+    ports:
+      - 8080:5000
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
