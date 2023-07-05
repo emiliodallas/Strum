@@ -2,7 +2,7 @@ import psycopg2
 
 def create_tables():
     conn = psycopg2.connect(
-        host="localhost",
+        host="postgresql",
         port="5432",
         database="postgres",
         user="postgres",

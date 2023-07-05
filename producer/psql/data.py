@@ -1,8 +1,9 @@
 import psycopg2
+from psql import sql
 
 def insert_client(first_name, last_name, idtelegram):
     conn = psycopg2.connect(
-        host="localhost",
+        host="postgresql",
         port="5432",
         database="postgres",
         user="postgres",
@@ -42,11 +43,9 @@ def insert_client(first_name, last_name, idtelegram):
     # Close the cursor
     cursor.close()
 
-
-
 def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_promotion):
     conn = psycopg2.connect(
-        host="localhost",
+        host="postgresql",
         port="5432",
         database="postgres",
         user="postgres",
@@ -103,11 +102,12 @@ def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_p
     # Close the cursor
     cursor.close()
 
-
+#Create tables first thing
+sql.create_tables()
 
 # Establish a connection to the PostgreSQL container
 conn = psycopg2.connect(
-    host="localhost",
+    host="postgresql",
     port="5432",
     database="postgres",
     user="postgres",

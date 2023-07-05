@@ -1,2 +1,4 @@
 confluent-kafka
 telebot
+kafka-python
+pyTelegramBotAPI

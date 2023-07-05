@@ -1,5 +1,5 @@
 pyTelegramBotAPI
-confluent-kafka
 python-steam-api
 beautifulsoup4
 
+kafka-python

@@ -1,13 +1,10 @@
-FROM python:3.10
+FROM python:3.9
 
 WORKDIR /app
 
-COPY . .
+COPY . /app
 
 RUN apt-get update && apt-get install -y iputils-ping
 RUN pip3 install -r requirements.txt
-
-EXPOSE 5000
-
 
 CMD [ "python", "./consumer.py" ]
