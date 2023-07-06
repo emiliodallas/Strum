@@ -63,6 +63,8 @@ def run_telegram_bot(TK):
                 bot.send_message(chat_id, "Game added to wishlist!")
             elif user_input == 'n':
                 bot.send_message(chat_id, "Game not added to wishlist!")
+    
+    return wishlist
 
     # Start the bot
     bot.polling()   

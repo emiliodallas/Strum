@@ -41,19 +41,4 @@ except KeyboardInterrupt:
 
 # Close the Kafka consumer
 consumer.close()
-'''
-        # Parse the JSON data
-        data = json.loads(event_data)
-        game_name = data["game_name"]
-        price = data["price"]
-        discount = data["discount"]
-
-        if data['promotion']:
-            message = f'The game {game_name} is costing {price} with {discount}% off!'
-        else:
-            message = f'The game {game_name} is not in promotion costing {price}.'
-        bot.send_message(chat_id=chat_id, text=message)
-
-'''
-        # Send notification to the user's smartphone using Telegram or another messaging service
 

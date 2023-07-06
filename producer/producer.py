@@ -24,18 +24,28 @@ kafka_topic_wishlist = "wishlist"
 # Create Kafka producer
 producer = KafkaProducer(bootstrap_servers="kafka:9092")
 
-wishlist = {}
+def process_wishlist_data(wishlist):
+    for game in wishlist.values():
+        if game.get("promotion"):
+            # Game is in promotion, produce a topic for it
+            game_data = {
+                "game_name": game["game_name"],
+                "price": game["price"],
+                "discount": game["discount"]
+            }
+            game_data_json = json.dumps(game_data)
+            producer.send(kafka_topic, value=game_data_json)
+            producer.flush()
 
-def process_wishlist_data():
     wishlist_data = json.dumps(wishlist)
     producer.produce(kafka_topic_wishlist, value=wishlist_data, callback=delivery_callback)
     producer.flush()
 
 while True:
     try:
-        run_telegram_bot(TK=token)
+        wishlist = run_telegram_bot(TK=token)
     except Exception as e:
         print(e)
 
     # Process the wishlist data after the bot stops
-    process_wishlist_data()
+    process_wishlist_data(wishlist)
