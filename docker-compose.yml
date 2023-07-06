@@ -14,6 +14,7 @@ services:
     ports:
       - 8080:5000
     environment:
+      TELEGRAM_TOKEN: "6032445966:AAGo-AkteKJIpeoNO1gtrGG4lusbppUUrNE"
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: postgres

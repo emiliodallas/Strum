@@ -1,46 +1,68 @@
-import requests
 import telebot
-from flask import Flask
+import steam_data
+from psql.data import insert_client, add_game_to_wishlist
+
+def run_telegram_bot(TK):
+    bot = telebot.TeleBot(token=TK)
+    bot.remove_webhook()
+
+    start_flag = False
+    wishlist_flag = False
+
+    wishlist = {}
+
+    @bot.message_handler(commands=['start'])
+    def handle_start(message):
+        nonlocal start_flag
+        if not start_flag:
+            first_name = message.from_user.first_name
+            last_name = message.from_user.last_name
+            chat_id = message.from_user.id
+            id_client = insert_client(first_name=first_name, last_name=last_name, idtelegram=chat_id)
+            bot.send_message(chat_id, "Hello! Type a game.")
+            start_flag = True
 
 
+    @bot.message_handler(func=lambda message: True)
+    def handle_message(message):
+        nonlocal start_flag, wishlist_flag
 
-class Telegram:
-    """
-    Telegram Bot!
-    """
+        if start_flag and not wishlist_flag:
+            user_text = message.text
+            chat_id = message.from_user.id
+            gName, gPrice, gDiscount = steam_data.get_game(user_text)
+            gMessage = f"The game {gName} is costing {gPrice} with {gDiscount}% discount.\n"
+            bot.send_message(chat_id, gMessage)
+            bot.send_message(chat_id, "Add to wishlist? (y/n)")
+            wishlist_flag = True
 
-    def __init__(self, token, destinationID):
-        self.token = token
-        self.destID = destinationID
-        self.urlWR = f'https://api.telegram.org/bot{token}/sendMessage'
-        self.urlRD = f'https://api.telegram.org/bot{token}/getUpdates'
+        elif wishlist_flag:
+            wishlist_flag = False
+            user_input = message.text.strip().lower()
+            if user_input == 'y' and gDiscount > 0:
+                first_name = message.from_user.first_name
+                last_name = message.from_user.last_name
+                chat_id = message.from_user.id
+                add_game_to_wishlist(first_name=first_name, last_name=last_name, client_id=chat_id, game_name=gName, game_promotion=True)
+                wishlist[gName] = {
+                    "price": gPrice,
+                    "discount": gDiscount,
+                    "promotion": True
+                }
+                bot.send_message(chat_id, "Game added to wishlist!")
+            elif user_input == 'y' and gDiscount == 0:
+                first_name = message.from_user.first_name
+                last_name = message.from_user.last_name
+                chat_id = message.from_user.id
+                add_game_to_wishlist(first_name=first_name, last_name=last_name, client_id=chat_id, game_name=gName, game_promotion=False)
+                wishlist[gName] = {
+                    "price": gPrice,
+                    "discount": gDiscount,
+                    "promotion": False
+                }
+                bot.send_message(chat_id, "Game added to wishlist!")
+            elif user_input == 'n':
+                bot.send_message(chat_id, "Game not added to wishlist!")
 
-
-    def messageWR(self, message):
-
-        # Create URL
-        # Create Message
-        to_send = message
-
-        # Send message
-        requests.post(url = self.urlWR, data={"text": to_send})
-
-    def messageRD_first(self):
-
-        r = (requests.get(url=self.urlRD)).json()
-
-        rData = r["result"]
-        fName = rData[-1]["message"]["from"]["first_name"]
-        lName = rData[-1]["message"]["from"]["last_name"]
-        fId = rData[-1]["message"]["from"]["id"]
-        lGame = rData[-1]["message"]["text"]
-        return fName, lName, lGame, fId
-    
-    def wishlist_confirmation(self):
-        
-
-        r = (requests.get(url=self.urlRD)).json()
-
-        rData = r["result"]
-        wishlistFlag = rData[-1]["message"]["text"]
-        return wishlistFlag.lower()
+    # Start the bot
+    bot.polling()   

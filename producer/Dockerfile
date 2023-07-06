@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . /app
 
 RUN apt-get update && \
-    apt-get install -y iputils-ping
+    apt-get install
 
 RUN touch .env && \
     echo "STEAM_API_KEY=6032445966:AAGo-AkteKJIpeoNO1gtrGG4lusbppUUrNE" >> .env
