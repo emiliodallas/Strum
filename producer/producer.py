@@ -13,7 +13,7 @@ def delivery_callback(err, msg):
 
 
 # Telegram Parameters
-token = os.environ.get("TELEGRAM_TOKEN")
+token = "6032445966:AAGo-AkteKJIpeoNO1gtrGG4lusbppUUrNE"
 bot = telebot.TeleBot(token)
 
 # Configuration for Kafka producer
@@ -22,7 +22,7 @@ kafka_topic_2 = "not-promotions"
 kafka_topic_wishlist = "wishlist"
 
 # Create Kafka producer
-producer = KafkaProducer(bootstrap_servers="kafka:9092")
+producer = KafkaProducer(bootstrap_servers="localhost:9094")
 
 def process_wishlist_data(wishlist):
     for game_name, game_info in wishlist.items():
@@ -44,6 +44,7 @@ def process_wishlist_data(wishlist):
 while True:
     try:
         wishlist = run_telegram_bot(TK=token)
+        
     except Exception as e:
         print(e)
 

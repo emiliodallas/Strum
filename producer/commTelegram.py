@@ -1,6 +1,6 @@
 import telebot
 import steam_data
-#from psql.data import insert_client, add_game_to_wishlist
+from psql.data import insert_client, add_game_to_wishlist
 
 def run_telegram_bot(TK):
     bot = telebot.TeleBot(token=TK)
@@ -38,19 +38,20 @@ def run_telegram_bot(TK):
             bot.send_message(chat_id, gMessage)
             bot.send_message(chat_id, "Add to wishlist? (y/n)")
             wishlist_flag = True
+            return gName, gPrice, gDiscount
 
         elif wishlist_flag:
             wishlist_flag = False
             user_input = message.text.strip().lower()
             print(f"Received input: {user_input}")
-            gDiscount = 0
-            gPrice = 0
-            gName = 0
+            #gDiscount = 0
+            #gPrice = 0
+            #gName = 0
             if user_input == 'y' and gDiscount > 0:
                 first_name = message.from_user.first_name
                 last_name = message.from_user.last_name
                 chat_id = message.from_user.id
-                #add_game_to_wishlist(first_name=first_name, last_name=last_name, client_id=chat_id, game_name=gName, game_promotion=True)
+                add_game_to_wishlist(client_id=chat_id, game_name=gName, game_price= gPrice, game_discount=gDiscount, game_promotion=True)
                 wishlist[gName] = {
                     "price": gPrice,
                     "discount": gDiscount,
@@ -63,7 +64,7 @@ def run_telegram_bot(TK):
                 first_name = message.from_user.first_name
                 last_name = message.from_user.last_name
                 chat_id = message.from_user.id
-                #add_game_to_wishlist(first_name=first_name, last_name=last_name, client_id=chat_id, game_name=gName, game_promotion=False)
+                add_game_to_wishlist(client_id=chat_id, game_name=gName, game_price= gPrice, game_discount=gDiscount, game_promotion=True)
                 wishlist[gName] = {
                     "price": gPrice,
                     "discount": gDiscount,
