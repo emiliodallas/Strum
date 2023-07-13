@@ -20,11 +20,11 @@ full_name = game_detail[str(game_id)]["data"]["name"]
 
 print(json.dumps(game_detail[str(game_id)]["data"]))
 
-#wishlist_flag = True
-             '''elif wishlist_flag:
-            wishlist_flag = False
-            
-            print(f"Received input: {user_input}")
-            #gDiscount = 0
-            #gPrice = 0
-            #gName = 0'''
+variable = None
+
+if input() == "y":
+    variable = 13
+
+elif input() == "n":
+    # Use the variable here
+    print(variable)

@@ -13,7 +13,6 @@ def get_user():
     user_in = input("Type username: \n")
     return user_in
 
-import requests
 
 def price_discount(name):
     game_out = steam.apps.search_games(name)
