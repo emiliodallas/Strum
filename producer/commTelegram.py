@@ -7,7 +7,6 @@ def run_telegram_bot(TK):
     bot.remove_webhook()
 
     start_flag = False
-    wishlist_flag = False
 
     wishlist = {}
 
@@ -26,9 +25,9 @@ def run_telegram_bot(TK):
 
     @bot.message_handler(func=lambda message: True)
     def handle_message(message):
-        nonlocal start_flag, wishlist_flag
+        nonlocal start_flag
 
-        if start_flag and not wishlist_flag:
+        if start_flag:
             user_text = message.text
             chat_id = message.from_user.id
             gName, gPrice, gDiscount = steam_data.price_discount(user_text)
@@ -37,21 +36,16 @@ def run_telegram_bot(TK):
             print(f"Game info: {gName}, {gPrice}, {gDiscount}")
             bot.send_message(chat_id, gMessage)
             bot.send_message(chat_id, "Add to wishlist? (y/n)")
-            wishlist_flag = True
-            return gName, gPrice, gDiscount
-
-        elif wishlist_flag:
-            wishlist_flag = False
+            print(gName, gPrice, gDiscount)
             user_input = message.text.strip().lower()
-            print(f"Received input: {user_input}")
-            #gDiscount = 0
-            #gPrice = 0
-            #gName = 0
+            print("blau")
+            
             if user_input == 'y' and gDiscount > 0:
-                first_name = message.from_user.first_name
-                last_name = message.from_user.last_name
                 chat_id = message.from_user.id
+                print("blau1")
                 add_game_to_wishlist(client_id=chat_id, game_name=gName, game_price= gPrice, game_discount=gDiscount, game_promotion=True)
+                print("blau1")
+
                 wishlist[gName] = {
                     "price": gPrice,
                     "discount": gDiscount,
@@ -61,8 +55,6 @@ def run_telegram_bot(TK):
                 bot.send_message(chat_id, "Do you want to add another game? (y/n)")
                 start_flag = True  # Set start flag to allow input for another game
             elif user_input == 'y' and gDiscount == 0:
-                first_name = message.from_user.first_name
-                last_name = message.from_user.last_name
                 chat_id = message.from_user.id
                 add_game_to_wishlist(client_id=chat_id, game_name=gName, game_price= gPrice, game_discount=gDiscount, game_promotion=True)
                 wishlist[gName] = {
@@ -87,3 +79,4 @@ def run_telegram_bot(TK):
 bot_token = "6032445966:AAGo-AkteKJIpeoNO1gtrGG4lusbppUUrNE"
 wishlist = run_telegram_bot(TK=bot_token)
 print("Wishlist:", wishlist)
+

@@ -22,7 +22,7 @@ kafka_topic_2 = "not-promotions"
 kafka_topic_wishlist = "wishlist"
 
 # Create Kafka producer
-producer = KafkaProducer(bootstrap_servers="localhost:9094")
+producer = KafkaProducer(bootstrap_servers="kafka:9092")
 
 def process_wishlist_data(wishlist):
     for game_name, game_info in wishlist.items():
