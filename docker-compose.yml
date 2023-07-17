@@ -58,6 +58,24 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
+    
+  sql: 
+    container_name: sql
+    build:
+      context: ./producer/psql
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+    volumes:
+      - myvolume:/app/Shared
+    networks:
+      - mynetwork
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: mysecretpassword
 
 volumes:
   myvolume:

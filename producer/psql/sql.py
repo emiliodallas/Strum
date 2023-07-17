@@ -22,7 +22,8 @@ def create_tables():
     create_wishlist_table_query = """
     CREATE TABLE IF NOT EXISTS wishlist (
         idwishlist SERIAL PRIMARY KEY,
-        idclient INT REFERENCES client (idclient)
+        idclient INT REFERENCES client (idclient),
+        idgame INT REFERENCES game (idgame)
     )
     """
 
@@ -33,12 +34,6 @@ def create_tables():
         price VARCHAR(255),
         discount INT,
         promo BOOLEAN
-    )
-    """
-
-    create_game_wishlist_table_query = """
-    CREATE TABLE IF NOT EXISTS game_wishlist (
-        idgame INT REFERENCES game (idgame),
         idwishlist INT REFERENCES wishlist (idwishlist)
     )
     """
@@ -46,7 +41,6 @@ def create_tables():
     cursor.execute(create_client_table_query)
     cursor.execute(create_wishlist_table_query)
     cursor.execute(create_game_table_query)
-    cursor.execute(create_game_wishlist_table_query)
 
     conn.commit()
     cursor.close()

@@ -1,6 +1,6 @@
 import telebot
 import steam_data
-from psql.data import add_game_to_wishlist
+from psql.data import add_game_to_wishlist, insert_client
 
 def run_telegram_bot(TK):
     bot = telebot.TeleBot(token=TK)
@@ -17,6 +17,8 @@ def run_telegram_bot(TK):
         print("Received /start command")
 
         bot.send_message(chat_id, f"Hello {first_name} {last_name}! Type a game.")
+
+        insert_client(first_name=first_name, last_name=last_name, idtelegram=chat_id)
         bot.register_next_step_handler(message, handle_game_name)
         
     def handle_game_name(message):
