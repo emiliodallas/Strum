@@ -1,6 +1,6 @@
 import telebot
 import steam_data
-from psql.data import add_game_to_wishlist, insert_client
+from psql.data import add_game_to_wishlist, insert_client, wishlist_query
 
 def run_telegram_bot(TK):
     bot = telebot.TeleBot(token=TK)
@@ -11,14 +11,14 @@ def run_telegram_bot(TK):
 
     @bot.message_handler(commands=['start'])
     def handle_start(message):
-        first_name = message.from_user.first_name
-        last_name = message.from_user.last_name
-        chat_id = message.from_user.id
+        first_name1 = message.from_user.first_name
+        last_name1 = message.from_user.last_name
+        chat_id1 = message.from_user.id
         print("Received /start command")
 
-        bot.send_message(chat_id, f"Hello {first_name} {last_name}! Type a game.")
-        insert_client(first_name=first_name, last_name=last_name, idtelegram=chat_id)
-
+        bot.send_message(chat_id1, f"Hello {first_name1} {last_name1}! Type a game.")
+        u_id = insert_client(first_name=first_name1, last_name=last_name1, idtelegram=chat_id1)
+        print(u_id)
         bot.register_next_step_handler(message, handle_game_name)
         
     def handle_game_name(message):
@@ -55,7 +55,7 @@ def run_telegram_bot(TK):
             bot.send_message(chat_id, "Do you want to add another game? (y/n)")
             bot.register_next_step_handler(message, handle_repeat)
 
-        else:
+        elif user_input == "y":
         # Retrieve the game info from the dictionary
             game_info = game_info_dict.get(chat_id)
             if game_info:
@@ -65,19 +65,28 @@ def run_telegram_bot(TK):
 
                 if gName is not None and gPrice is not None and gDiscount is not None:                    
                     if gDiscount > 0:
-                        add_game_to_wishlist(client_id=chat_id, game_name=gName, game_price= gPrice, game_discount=gDiscount, game_promotion=True)
-                        bot.send_message(chat_id, "Game added to wishlist!")
-                    else:
-                        add_game_to_wishlist(client_id=chat_id, game_name=gName, game_price= gPrice, game_discount=gDiscount, game_promotion=False)
-                        bot.send_message(chat_id, "Game added to wishlist!")
 
+                        add_game_to_wishlist(client_id=chat_id, game_name=gName, game_price= gPrice, 
+                                             game_discount=gDiscount, game_promotion=True)
+
+                    elif gDiscount == 0:
+
+                        add_game_to_wishlist(client_id=chat_id, game_name=gName, game_price= gPrice, 
+                                             game_discount=gDiscount, game_promotion=False)
+                        
+                    bot.send_message(chat_id, "Game added to wishlist!")
                     bot.send_message(chat_id, "Do you want to add another game? (y/n)")
+
                     bot.register_next_step_handler(message, handle_repeat)
+                    
                 else:
+
                     print(gName, gPrice, gDiscount)
                     bot.send_message(chat_id, "Game information not found.")
                     print('1')
+
             else:
+
                 bot.send_message(chat_id, "Game information not found.")
                 print('2')
 
@@ -92,7 +101,17 @@ def run_telegram_bot(TK):
         else:
             bot.send_message(chat_id, "Goodbye!")
             
-
+    @bot.message_handler(commands=['wishlist'])
+    def wishes_handler(message):
+        chat_id = message.from_user.id
+        print("Received /wishlist command")
+        bot.send_message(chat_id, "Your wishlist is: ")
+        wL = wishlist_query(idtelegram=chat_id)
+        if wL:
+            for game in wL:
+                print(game)
+        else:
+            print("Wishlist not found for the client.")
 
     bot.polling()  
     return wishlist
@@ -101,3 +120,7 @@ def run_telegram_bot(TK):
 bot_token = "6032445966:AAGo-AkteKJIpeoNO1gtrGG4lusbppUUrNE"
 wishlist = run_telegram_bot(TK=bot_token)
 print("Wishlist:", wishlist)
+
+
+
+        

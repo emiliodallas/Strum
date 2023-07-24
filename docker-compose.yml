@@ -54,7 +54,8 @@ services:
     image: postgres
     restart: always
     networks:
-      - mynetwork
+      mynetwork:
+        ipv4_address: 172.31.0.5
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
@@ -71,7 +72,7 @@ services:
     networks:
       - mynetwork
     environment:
-      DB_HOST: postgres
+      DB_HOST: postgresql
       DB_PORT: 5432
       DB_NAME: postgres
       DB_USER: postgres

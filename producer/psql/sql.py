@@ -12,17 +12,18 @@ def create_tables():
 
     create_client_table_query = """
     CREATE TABLE IF NOT EXISTS client (
-        idclient SERIAL PRIMARY KEY,
+        idtelegram INT PRIMARY KEY,
+        idclient SERIAL,
         firstname VARCHAR(255),
-        lastname VARCHAR(255),
-        idtelegram VARCHAR(255)
+        lastname VARCHAR(255)
+        
     )
     """
 
     create_wishlist_table_query = """
     CREATE TABLE IF NOT EXISTS wishlist (
         idwishlist SERIAL PRIMARY KEY,
-        idclient INT REFERENCES client (idclient)
+        idclient INT REFERENCES client (idtelegram)
     )
     """
 
@@ -39,13 +40,20 @@ def create_tables():
 
     add_reference_query = """
         ALTER TABLE wishlist
-        ADD COLUMN idgame INT REFERENCES game (idgame)
+        ADD COLUMN IF NOT EXISTS idgame INT REFERENCES game (idgame)
+        """
+    
+    add_client_reference = """
+        ALTER TABLE client
+        ADD COLUMN IF NOT EXISTS idgame INT REFERENCES game (idgame),
+        ADD COLUMN IF NOT EXISTS idwishlist INT REFERENCES wishlist (idwishlist)
         """
 
     cursor.execute(create_client_table_query)
     cursor.execute(create_wishlist_table_query)
     cursor.execute(create_game_table_query)
-    #cursor.execute(add_reference_query)
+    cursor.execute(add_reference_query)
+    cursor.execute(add_client_reference)
 
     conn.commit()
     cursor.close()

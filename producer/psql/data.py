@@ -1,7 +1,6 @@
 import psycopg2
-from psql import sql
 
-def insert_client(first_name, last_name, idtelegram):
+def insert_client(idtelegram, first_name, last_name):
     conn = psycopg2.connect(
         host="postgresql",
         port="5432",
@@ -9,39 +8,50 @@ def insert_client(first_name, last_name, idtelegram):
         user="postgres",
         password="mysecretpassword"
     )
-    cursor = conn.cursor()
 
-    # Check if the user already exists
-    check_user_query = """
-    SELECT idclient FROM client
-    WHERE firstname = %s AND lastname = %s
-    """
-    cursor.execute(check_user_query, (first_name, last_name))
-    existing_user = cursor.fetchone()
+    try:
+        cursor = conn.cursor()
 
-    if existing_user:
-        # User already exists, retrieve the user's ID
-        user_id = existing_user[0]
-        print(f"User already exists. ID: {user_id}")
-        return user_id
-
-    else:
-        # Insert the new user into the client table
-        insert_user_query = """
-        INSERT INTO client (firstname, lastname, idtelegram)
-        VALUES (%s, %s, %s)
-        RETURNING idclient
+        # Check if the user already exists
+        check_user_query = """
+        SELECT idtelegram FROM client
+        WHERE idtelegram = %s
         """
-        cursor.execute(insert_user_query, (first_name, last_name, idtelegram))
-        user_id = cursor.fetchone()[0]
+        cursor.execute(check_user_query, (idtelegram,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            # User already exists, retrieve the user's ID
+            user_id = existing_user[0]
+            print(f"User already exists. ID: {user_id}")
+
+        else:
+            # Insert the new user into the client table
+            insert_user_query = """
+            INSERT INTO client (idtelegram, firstname, lastname)
+            VALUES (%s, %s, %s)
+            RETURNING idtelegram
+            """
+            cursor.execute(insert_user_query, (idtelegram, first_name, last_name))
+            user_id = cursor.fetchone()[0]
+
+            # Commit the changes for the new user
+            conn.commit()
+
         return user_id
 
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        # Rollback the transaction in case of an error
+        conn.rollback()
+        return None
 
-    # Commit the changes
-    conn.commit()
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
 
-    # Close the cursor
-    cursor.close()
+        
 
 def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_promotion):
     conn = psycopg2.connect(
@@ -60,8 +70,8 @@ def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_p
     RETURNING idgame
     """
     cursor.execute(insert_game_query, (game_name, game_price, game_discount, game_promotion, None))
-    game_id = cursor.fetchone()[0]
-
+    game_id = cursor.fetchone()[0]  
+    print(" 1 ")
     try:
         # Get the wishlist ID for the given client ID
         get_wishlist_query = """
@@ -70,6 +80,7 @@ def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_p
         """
         cursor.execute(get_wishlist_query, (client_id,))
         wishlist_id = cursor.fetchone()[0]
+        print(" 2 ")
 
     except TypeError:
         # Wishlist doesn't exist, create a new one
@@ -80,6 +91,7 @@ def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_p
         """
         cursor.execute(create_wishlist_query, (client_id, game_id))
         wishlist_id = cursor.fetchone()[0]
+        print(" 3 ")
 
     # Connect the game and wishlist in the client table
     update_client_query = """
@@ -88,6 +100,7 @@ def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_p
     WHERE idclient = %s
     """
     cursor.execute(update_client_query, (game_id, wishlist_id, client_id))
+    print(" 4 ")
 
     update_game_query = """
     UPDATE game
@@ -102,9 +115,34 @@ def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_p
     # Close the cursor
     cursor.close()
 
-#Create tables first thing
-sql.create_tables()
 
+def wishlist_query(idtelegram):
+
+    connection = psycopg2.connect(
+        host="postgresql",
+        port="5432",
+        database="postgres",
+        user="postgres",
+        password="mysecretpassword"
+    )
+
+    # Query the client table to get idwishlist
+    with connection.cursor() as cursor:
+        cursor.execute(f"SELECT idwishlist FROM client WHERE idtelegram = {idtelegram}")
+        result = cursor.fetchone()
+        if result:
+            idwishlist = result[0]
+            # Query the game table to get games associated with idwishlist
+            cursor.execute(f"SELECT * FROM game WHERE idwishlist = {idwishlist}")
+            wishlist = cursor.fetchall()
+            return wishlist
+        else:
+            return None
+
+
+#Create tables first thing
+#sql.create_tables()
+'''
 # Establish a connection to the PostgreSQL container
 conn = psycopg2.connect(
     host="postgresql",
@@ -140,4 +178,4 @@ for row in rows:
 # Close the cursor and connection
 cursor.close()
 conn.close()
-
+'''
