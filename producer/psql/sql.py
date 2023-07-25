@@ -40,13 +40,13 @@ def create_tables():
 
     add_reference_query = """
         ALTER TABLE wishlist
-        ADD COLUMN IF NOT EXISTS idgame INT REFERENCES game (idgame)
+        ADD COLUMN IF NOT EXISTS idgame INT REFERENCES game (idgame);
         """
     
     add_client_reference = """
         ALTER TABLE client
         ADD COLUMN IF NOT EXISTS idgame INT REFERENCES game (idgame),
-        ADD COLUMN IF NOT EXISTS idwishlist INT REFERENCES wishlist (idwishlist)
+        ADD COLUMN IF NOT EXISTS idwishlist INT REFERENCES wishlist (idwishlist);
         """
 
     cursor.execute(create_client_table_query)

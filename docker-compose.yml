@@ -54,8 +54,7 @@ services:
     image: postgres
     restart: always
     networks:
-      mynetwork:
-        ipv4_address: 172.31.0.5
+      - mynetwork
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
@@ -66,7 +65,7 @@ services:
       context: ./producer/psql
       dockerfile: Dockerfile
     depends_on:
-      - kafka
+      - postgres
     volumes:
       - myvolume:/app/Shared
     networks:

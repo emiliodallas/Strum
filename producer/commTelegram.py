@@ -17,31 +17,35 @@ def run_telegram_bot(TK):
         print("Received /start command")
 
         bot.send_message(chat_id1, f"Hello {first_name1} {last_name1}! Type a game.")
-        u_id = insert_client(first_name=first_name1, last_name=last_name1, idtelegram=chat_id1)
-        print(u_id)
+        u_id = insert_client(idtelegram=chat_id1, first_name=first_name1, last_name=last_name1)
+        print("chat id:", u_id)
+
         bot.register_next_step_handler(message, handle_game_name)
         
     def handle_game_name(message):
+        try:
+            chat_id = message.from_user.id
+            user_text = message.text
 
-        chat_id = message.from_user.id
-        user_text = message.text
+            gName, gPrice, gDiscount = steam_data.price_discount(user_text)
+            gMessage = f"The game {gName} is costing {gPrice} with {gDiscount}% discount."
 
-        gName, gPrice, gDiscount = steam_data.price_discount(user_text)
-        gMessage = f"The game {gName} is costing {gPrice} with {gDiscount}% discount."
+            print(f"Received message: {user_text}")
+            print(f"Game info: {gName}, {gPrice}, {gDiscount}")
 
-        print(f"Received message: {user_text}")
-        print(f"Game info: {gName}, {gPrice}, {gDiscount}")
+            bot.send_message(chat_id, gMessage)
 
-        bot.send_message(chat_id, gMessage)
-        bot.send_message(chat_id, "Add to wishlist? (y/n)")
+        
+            bot.send_message(chat_id, "Add to wishlist? (y/n)")
 
-        # Store the game info as custom properties of the chat object
-        game_info_dict[chat_id] = {
-            "gName": gName,
-            "gPrice": gPrice,
-            "gDiscount": gDiscount
-        }
-
+            # Store the game info as custom properties of the chat object
+            game_info_dict[chat_id] = {
+                "gName": gName,
+                "gPrice": gPrice,
+                "gDiscount": gDiscount
+            }
+        except: 
+            bot.send_message(chat_id, "Game not found bro")
 
         bot.register_next_step_handler(message, handle_wishlist)
 
@@ -109,9 +113,10 @@ def run_telegram_bot(TK):
         wL = wishlist_query(idtelegram=chat_id)
         if wL:
             for game in wL:
-                print(game)
+                game_info = f"Game Name: {game[0]} \nPrice: {game[1]} \nDiscount: {game[2]}%"
+                bot.send_message(chat_id, game_info)
         else:
-            print("Wishlist not found for the client.")
+            bot.send_message(chat_id, "No wishlisto bro")
 
     bot.polling()  
     return wishlist
