@@ -44,10 +44,10 @@ def run_telegram_bot(TK):
                 "gPrice": gPrice,
                 "gDiscount": gDiscount
             }
+            bot.register_next_step_handler(message, handle_wishlist)
         except: 
             bot.send_message(chat_id, "Game not found bro")
-
-        bot.register_next_step_handler(message, handle_wishlist)
+            bot.register_next_step_handler(message, handle_repeat)
 
     def handle_wishlist(message):
 

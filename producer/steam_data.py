@@ -17,7 +17,7 @@ def get_user():
 def price_discount(name):
     game_out = steam.apps.search_games(name)
     game_id = game_out["apps"][0]["id"]
-    game_detail = json.loads(steam.apps.get_app_details(game_id))
+    game_detail = steam.apps.get_app_details(game_id)
     discount = game_detail[str(game_id)]["data"]["price_overview"]["discount_percent"]
     price = game_detail[str(game_id)]["data"]["price_overview"]["final_formatted"]
     full_name = game_detail[str(game_id)]["data"]["name"]

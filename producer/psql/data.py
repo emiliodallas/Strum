@@ -51,8 +51,7 @@ def insert_client(idtelegram, first_name, last_name):
         # Close the cursor and connection
         cursor.close()
         conn.close()
-
-        
+       
 
 def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_promotion):
     conn = psycopg2.connect(
@@ -65,15 +64,29 @@ def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_p
     cursor = conn.cursor()
 
     # Insert the game into the game table
-    insert_game_query = """
-    INSERT INTO game (name, price, discount, promo, idwishlist)
-    VALUES (%s, %s, %s, %s, %s)
-    RETURNING idgame
-    """
+    try:
+        insert_game_query = """
+        INSERT INTO game (name, price, discount, promo, idwishlist)
+        VALUES (%s, %s, %s, %s, %s)
+        RETURNING idgame
+        """
+        
+        cursor.execute(insert_game_query, (game_name, game_price, game_discount, game_promotion, None))
+        game_id = cursor.fetchone()[0]
+        flag = True
 
-    cursor.execute(insert_game_query, (game_name, game_price, game_discount, game_promotion, None))
-    game_id = cursor.fetchone()[0]
+    except:
+        conn.rollback()  # Roll back the transaction
 
+        update_existing_game_query = """
+        UPDATE game
+        SET price = %s, discount = %s, promo = %s
+        WHERE name = %s
+        """
+        cursor.execute(update_existing_game_query, (game_price, game_discount, game_promotion, game_name))
+        conn.commit()  # Commit the update
+        flag = False
+    
     try:
         # Get the wishlist ID for the given client ID
         get_wishlist_query = """
@@ -96,23 +109,24 @@ def add_game_to_wishlist(client_id, game_name, game_price, game_discount, game_p
         print(client_id)
         print("creating new idwishlist: ", wishlist_id)
 
-    # Connect the game and wishlist in the client table
-    update_client_query = """
-    UPDATE client
-    SET idgame = %s, idwishlist = %s
-    WHERE idtelegram = %s
-    """
+    if flag:
+        # Connect the game and wishlist in the client table
+        update_client_query = """
+        UPDATE client
+        SET idgame = %s, idwishlist = %s
+        WHERE idtelegram = %s
+        """
 
-    print(client_id)
-    cursor.execute(update_client_query, (game_id, wishlist_id, client_id))
-    print("wishlist id====", wishlist_id)
+        print(client_id)
+        cursor.execute(update_client_query, (game_id, wishlist_id, client_id))
+        print("wishlist id====", wishlist_id)
 
-    update_game_query = """
-    UPDATE game
-    SET idwishlist = %s
-    WHERE idgame = %s
-    """
-    cursor.execute(update_game_query, (wishlist_id, game_id))
+        update_game_query = """
+        UPDATE game
+        SET idwishlist = %s
+        WHERE idgame = %s
+        """
+        cursor.execute(update_game_query, (wishlist_id, game_id))
 
     # Commit the changes
     conn.commit()

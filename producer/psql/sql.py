@@ -30,7 +30,7 @@ def create_tables():
     create_game_table_query = """
     CREATE TABLE IF NOT EXISTS game (
         idgame SERIAL PRIMARY KEY,
-        name VARCHAR(255),
+        name VARCHAR(255) UNIQUE,
         price VARCHAR(255),
         discount INT,
         promo BOOLEAN,
