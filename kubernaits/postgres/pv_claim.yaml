@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi  # Adjust the size to match the PV size
+  volumeName: postgres-pv  # Specify the name of the existing PV
+  volumeMode: Filesystem
+  storageClassName: standard-rwo

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-deployment
+spec:
+  replicas: 1  # Set the desired number of replicas
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+        - name: consumer
+          image: gcr.io/dallas-lake/strum-consumer:v1
+          ports:
+            - containerPort: 5000  # Adjust the container port as needed
+          env:
+            - name: KAFKA_BROKERCONNECT
+              value: "kafka:9092"  # Use the DNS name of the Kafka service within the Kubernetes cluster
+          volumeMounts:

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql-deployment
+spec:
+  replicas: 1  # Adjust the number of replicas as needed
+  selector:
+    matchLabels:
+      app: postgresql
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      containers:
+        - name: postgresql
+          image: postgres:latest
+          ports:
+            - containerPort: 5432  # PostgreSQL port
+          env:
+            - name: POSTGRES_DB
+              value: "postgres"  # Set your PostgreSQL database name
+            - name: POSTGRES_HOST
+              value: "postgresql"  # Set your PostgreSQL host (service name)
+            - name: POSTGRES_PORT
+              value: "5432"  # Set your PostgreSQL port
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgre-secret
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgre-secret
+                  key: password
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc # Specify the name of your PVC

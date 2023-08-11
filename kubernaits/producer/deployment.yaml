@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+        - name: producer
+          image: gcr.io/dallas-lake/strum-producer:v2
+          ports:
+            - containerPort: 5000
+          env:
+            - name: TELEGRAM_TOKEN
+              value: "6032445966:AAGo-AkteKJIpeoNO1gtrGG4lusbppUUrNE"
+            - name: POSTGRES_DB
+              value: "postgres"  # Set your PostgreSQL database name
+            - name: POSTGRES_HOST
+              value: "postgresql"  # Set your PostgreSQL host (service name)
+            - name: POSTGRES_PORT
+              value: "5432"  # Set your PostgreSQL port
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgre-secret
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgre-secret
+                  key: password      
+# Additional configuration for networking and resources can be added here if needed
+
+# Create similar YAML files for the other services (consumer, kafka, postgres)
