@@ -2,7 +2,7 @@ from kafka import KafkaProducer
 import json
 import telebot
 from commTelegram import run_telegram_bot
-import os
+from sql import create_tables
 
 # Error Handling
 def delivery_callback(err, msg):
@@ -40,6 +40,8 @@ def process_wishlist_data(wishlist):
     wishlist_data = json.dumps(wishlist).encode("utf-8")
     producer.send(kafka_topic_wishlist, value=wishlist_data).add_callback(delivery_callback)
     producer.flush()
+
+create_tables()
 
 while True:
     try:

@@ -1,6 +1,6 @@
 import telebot
 import steam_data
-from psql.data import add_game_to_wishlist, insert_client, wishlist_query
+from data import add_game_to_wishlist, insert_client, wishlist_query
 
 def run_telegram_bot(TK):
     bot = telebot.TeleBot(token=TK)
